@@ -1,24 +1,26 @@
-import express from 'express';
 import dotenv from 'dotenv';
-import sequelize from './models';
-import routes from './routes';
-
 dotenv.config();
+
+import express from 'express';
+import cors from 'cors';
+import routes from './routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN,
+  methods: ['GET', 'POST'],
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use('/api', routes);
 
 const startServer = async () => {
   try {
-    await sequelize.authenticate();
-    console.log('Connection to the database has been established successfully.');
-
-    await sequelize.sync();
-    console.log('All models were synchronized successfully.');
-
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
