@@ -30,7 +30,6 @@ const DashboardPage: React.FC<DashboardProps> = ({ name, containerStyle, onClick
   useEffect(() => {
     const fetchDashboards = async () => {
       const data = await getDashboards();
-      // setDashboards(data.filter((dashboard: Dashboard) => dashboard.name === name));
       setDashboards(data);
     };
 
@@ -42,10 +41,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ name, containerStyle, onClick
 
     if (uuid !== null) {
       const charts: Chart[] = await getCharts();
-      console.log('selectedDashboardId: ', selectedDashboardId)
-      console.log('charts in dashbaords: ', charts)
       const filteredCharts = charts.filter(chart => chart.dashboard_id === uuid)
-      // const filteredCharts = charts
       setCharts(filteredCharts);
     } else {
       setCharts([]);
