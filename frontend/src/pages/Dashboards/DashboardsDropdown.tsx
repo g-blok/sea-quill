@@ -2,19 +2,19 @@ import React from 'react';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 interface Dashboard {
-  id: number;
+  uuid: string;
   name: string;
 }
 
 interface Props {
   dashboards: Dashboard[];
-  selectedDashboardId: number | null;
-  onChange: (id: number | null) => void;
+  selectedDashboardId: string | null;
+  onChange: (id: string | null) => void;
 }
 
 const DashboardsDropdown: React.FC<Props> = ({ dashboards, selectedDashboardId, onChange }) => {
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    onChange(event.target.value as number);
+    onChange(event.target.value as string);
   };
 
   return (
@@ -26,7 +26,7 @@ const DashboardsDropdown: React.FC<Props> = ({ dashboards, selectedDashboardId, 
         onChange={handleChange}
       >
         {dashboards.map(dashboard => (
-          <MenuItem key={dashboard.id} value={dashboard.id}>
+          <MenuItem key={dashboard.uuid} value={dashboard.uuid}>
             {dashboard.name}
           </MenuItem>
         ))}

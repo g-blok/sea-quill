@@ -8,11 +8,12 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
 } from 'recharts';
 import { CircularProgress, Box, Typography } from '@mui/material';
+import ChartModal from './ChartModal';
+
 
 interface Chart {
   id: number;
@@ -39,8 +40,8 @@ interface Props {
 const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) => {
   const [chartData, setChartData] = useState<{ [key: number]: ChartData[] }>({});
   const [loading, setLoading] = useState(true);
-
-  console.log('timeRange: ', timeRange);
+  const [selectedChart, setSelectedChart] = useState<Chart | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,11 +49,12 @@ const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) 
       const data: { [key: number]: ChartData[] } = {};
 
       for (const chart of charts) {
+        data[chart.id] = [];
         const result = await getChartData(chart.id);
-        console.log('chart.sql_query: ', chart.sql_query);
-        console.log('result: ', result);
         
-        data[chart.id] = result;
+        if (result?.length) {
+          data[chart.id] = result
+        };
       }
 
       setChartData(data);
@@ -60,7 +62,18 @@ const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) 
     };
 
     fetchData();
-  }, [charts]);
+  }, [charts, timeRange]);
+
+
+  const handleChartClick = (chart: Chart) => {
+    setSelectedChart(chart);
+    setModalOpen(true);
+    onClickChart(chart);
+  };
+
+  const handleClose = () => {
+    setModalOpen(false);
+  };
 
   if (loading) {
     return (
@@ -73,7 +86,12 @@ const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) 
   return (
     <div className="grid grid-cols-3 gap-4">
       {charts.map((chart) => (
-        <Box key={chart.id} mb={4} onClick={() => onClickChart(chart)} style={{ cursor: 'pointer' }}>
+        <Box
+          key={chart.id}
+          mb={4}
+          onClick={() => handleChartClick(chart)}
+          style={{ cursor: 'pointer', transition: 'transform 0.2s', ':hover': { transform: 'scale(1.05)' } }}
+        >
           <Typography variant="h6" gutterBottom>
             {chart.name}
           </Typography>
@@ -102,10 +120,12 @@ const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) 
                 <Bar dataKey={chart.y_axis_field} fill="#8884d8" />
               </BarChart>
             )}
-            {/* Add more chart types as needed */}
           </ResponsiveContainer>
         </Box>
       ))}
+      {selectedChart && (
+        <ChartModal open={modalOpen} onClose={handleClose} chart={selectedChart} />
+      )}
     </div>
   );
 };

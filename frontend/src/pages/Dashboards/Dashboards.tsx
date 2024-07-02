@@ -5,13 +5,13 @@ import DashboardsCharts from './DashboardsCharts';
 import DashboardsTimeRangeSelect from './DashboardsTimeRangeSelect';
 
 interface Dashboard {
-  id: number;
+  uuid: number;
   name: string;
 }
 
 interface Chart {
   id: number;
-  dashboard_id: number;
+  dashboard_id: string;
   sql_query: string;
 }
 
@@ -23,7 +23,7 @@ interface DashboardProps {
 
 const DashboardPage: React.FC<DashboardProps> = ({ name, containerStyle, onClickDashboardItem }) => {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
-  const [selectedDashboardId, setSelectedDashboardId] = useState<number | null>(null);
+  const [selectedDashboardId, setSelectedDashboardId] = useState<string | null>(null);
   const [filteredCharts, setCharts] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<string>('currentMonth');
 
@@ -37,12 +37,14 @@ const DashboardPage: React.FC<DashboardProps> = ({ name, containerStyle, onClick
     fetchDashboards();
   }, []);
 
-  const handleDashboardChange = async (id: number | null) => {
-    setSelectedDashboardId(id);
+  const handleDashboardChange = async (uuid: string | null) => {
+    setSelectedDashboardId(uuid);
 
-    if (id !== null) {
+    if (uuid !== null) {
       const charts: Chart[] = await getCharts();
-      const filteredCharts = charts.filter(chart => chart.dashboard_id === selectedDashboardId)
+      console.log('selectedDashboardId: ', selectedDashboardId)
+      console.log('charts in dashbaords: ', charts)
+      const filteredCharts = charts.filter(chart => chart.dashboard_id === uuid)
       // const filteredCharts = charts
       setCharts(filteredCharts);
     } else {
