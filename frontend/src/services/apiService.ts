@@ -14,7 +14,12 @@ export const getCharts = async () => {
   return response.data;
 };
 
-export const getChartData = async (chartId: number) => {
-  const response = await api.get(`/charts/${chartId}`);
+export const getChartData = async (chartId: number, dateRange?: {start: string, end: string}) => {
+  const response = await api.get(`/charts/${chartId}`, {
+    params: {
+      startDate: dateRange?.start,
+      endDate: dateRange?.end,
+    },
+  });
   return response.data;
 };
