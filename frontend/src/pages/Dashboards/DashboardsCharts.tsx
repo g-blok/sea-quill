@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { getChartData } from '../../services/apiService';
 import {
   LineChart,
@@ -7,13 +7,14 @@ import {
   Bar,
   XAxis,
   YAxis,
+  Tooltip,
   CartesianGrid,
   Legend,
   ResponsiveContainer,
 } from 'recharts';
 import { CircularProgress, Box, Typography } from '@mui/material';
 import ChartModal from './ChartModal';
-
+import debounce from 'lodash.debounce';
 
 interface Chart {
   id: number;
@@ -33,37 +34,48 @@ interface ChartData {
 
 interface Props {
   charts: Chart[];
-  timeRange: string;
+  dateRange: { start: string, end: string };
   onClickChart: (chart: Chart) => void;
 }
 
-const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) => {
+const DashboardsCharts: React.FC<Props> = ({ charts, dateRange, onClickChart }) => {
   const [chartData, setChartData] = useState<{ [key: number]: ChartData[] }>({});
   const [loading, setLoading] = useState(true);
   const [selectedChart, setSelectedChart] = useState<Chart | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = useCallback(
+    debounce(async () => {
+      if (!dateRange?.start?.length && !dateRange?.end?.length) {
+        setLoading(false)
+        return
+      }
       setLoading(true);
       const data: { [key: number]: ChartData[] } = {};
 
       for (const chart of charts) {
         data[chart.id] = [];
-        const result = await getChartData(chart.id);
-        
+        const result = await getChartData(chart.id, dateRange);
+        console.log('chart: ', chart);
+        console.log('result: ', result);
+
         if (result?.length) {
-          data[chart.id] = result
-        };
+          data[chart.id] = result;
+        }
       }
 
       setChartData(data);
       setLoading(false);
-    };
+    }, 300),
+    [charts, dateRange]
+  );
 
+  useEffect(() => {
     fetchData();
-  }, [charts, timeRange]);
-
+  }, [fetchData]);
+  useEffect(() => {
+    console.log('dateRange in charts: ', dateRange)
+  }, [])
 
   const handleChartClick = (chart: Chart) => {
     setSelectedChart(chart);
@@ -84,7 +96,7 @@ const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) 
   }
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 gap-4 mt-8">
       {charts.map((chart) => (
         <Box
           key={chart.id}
@@ -104,6 +116,7 @@ const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) 
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey={chart.x_axis_field} />
                 <YAxis />
+                <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey={chart.y_axis_field} stroke="#8884d8" activeDot={{ r: 8 }} />
               </LineChart>
@@ -116,6 +129,7 @@ const DashboardsCharts: React.FC<Props> = ({ charts, timeRange, onClickChart }) 
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey={chart.x_axis_field} />
                 <YAxis />
+                <Tooltip />
                 <Legend />
                 <Bar dataKey={chart.y_axis_field} fill="#8884d8" />
               </BarChart>

@@ -1,5 +1,11 @@
 import React from 'react';
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 
 interface Dashboard {
   uuid: string;
@@ -13,26 +19,25 @@ interface Props {
 }
 
 const DashboardsDropdown: React.FC<Props> = ({ dashboards, selectedDashboardId, onChange }) => {
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    onChange(event.target.value as string);
+  const handleChange = (value: string) => {
+    onChange(value);
   };
 
   return (
-    <FormControl className="min-w-80 max-w-80 w-80">
-      <InputLabel id="dashboard-select-label">Select Dashboard</InputLabel>
-      <Select
-        labelId="dashboard-select-label"
-        value={selectedDashboardId || ''}
-        onChange={handleChange}
-      >
+    <Select onValueChange={handleChange} value={selectedDashboardId || ''}>
+      <SelectTrigger className="text-3xl w-[300px] mr-4 my-2 py-6 border-none font-bold">
+        <SelectValue placeholder="Select Dashboard" />
+      </SelectTrigger>
+      <SelectContent className="bg-white text-black">
         {dashboards.map(dashboard => (
-          <MenuItem key={dashboard.uuid} value={dashboard.uuid}>
+          <SelectItem key={dashboard.uuid} value={dashboard.uuid}>
             {dashboard.name}
-          </MenuItem>
+          </SelectItem>
         ))}
-      </Select>
-    </FormControl>
+      </SelectContent>
+    </Select>
   );
 };
 
 export default DashboardsDropdown;
+
