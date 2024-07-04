@@ -64,7 +64,7 @@ const DashboardPage: React.FC<DashboardProps> = ({ name, containerStyle, onClick
   };
 
   return (
-    <div className="pt-20 pl-10" style={containerStyle}>
+    <div className="p-10 pr-20" style={containerStyle}>
       <DashboardsDropdown
         dashboards={dashboards}
         selectedDashboardId={selectedDashboardId}

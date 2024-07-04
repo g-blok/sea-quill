@@ -25,7 +25,7 @@ const DashboardsDropdown: React.FC<Props> = ({ dashboards, selectedDashboardId, 
 
   return (
     <Select onValueChange={handleChange} value={selectedDashboardId || ''}>
-      <SelectTrigger className="text-3xl w-[300px] mr-4 my-2 py-6 border-none font-bold">
+      <SelectTrigger className="text-3xl w-fit gap-4 mr-4 my-2 py-6 border-none font-bold leading-100">
         <SelectValue placeholder="Select Dashboard" />
       </SelectTrigger>
       <SelectContent className="bg-white text-black">
