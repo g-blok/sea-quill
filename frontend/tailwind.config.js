@@ -24,12 +24,14 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          light: '#B8F2F4', // Example light primary color
+          DEFAULT: '#5FDCE1', // Example primary color
+          dark: '#4ACDD2', // Example dark primary color
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          light: '#C2C3F8', // Example light secondary color
+          DEFAULT: '#9698F1', // Example secondary color
+          dark: '#6669ED', // Example dark secondary color
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -70,6 +72,9 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      borderWidth: {
+        '20': '20px',
       },
     },
   },
