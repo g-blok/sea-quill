@@ -1,31 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import ChartsHeader from './ChartsHeader';
 import { getCharts } from '../../services/apiService';
-import { Typography } from '@mui/material';
-
-interface Chart {
-  id: number;
-  sqlquery: string;
-}
 
 const ChartsPage: React.FC = () => {
-  const [charts, setCharts] = useState<Chart[]>([]);
-
-  useEffect(() => {
-    const fetchCharts = async () => {
-      const data = await getCharts();
-      setCharts(data);
-    };
-
-    fetchCharts();
-  }, []);
 
   return (
-    <div>
-      {charts.map(chart => (
-        <Typography key={chart.id} variant="body1">
-          {chart.sqlquery}
-        </Typography>
-      ))}
+    <div className="p-10 pr-20">
+      <ChartsHeader />
     </div>
   );
 };
