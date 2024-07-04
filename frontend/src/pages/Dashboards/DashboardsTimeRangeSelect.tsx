@@ -21,31 +21,22 @@ interface DateRange {
 }
 
 const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({ initialDateRange, onChange }) => {
-  const [selectedRange, setSelectedRange] = useState(initialDateRange);
+  const [selectedRange, setSelectedRange] = useState(initialDateRange);  
   const [customStartDate, setCustomStartDate] = useState<Date | null>(null);
   const [customEndDate, setCustomEndDate] = useState<Date | null>(null);
-  const [dateRange, setDateRange] = useState<[Date, Date]>(() => getDateRange(initialDateRange));
+  const dateRange = getDateRange(selectedRange);
 
-  // useEffect(() => {
-  //   if (!selectedRange) {
-  //     setSelectedRange(initialDateRange);
-  //     setCustomStartDate(null);
-  //     setCustomEndDate(null);
-  //     const range = getDateRange(initialDateRange);
-  //     console.log('range: ', range)
-  //     onChange(range[0], range[1]);
-  //   }
-  // }, [selectedRange, onChange]);
-  
-  // useEffect(() => {
-  //   if (selectedRange !== 'CUSTOM') {
-  //     const range = getDateRange(selectedRange);
-  //     setDateRange(range);
-  //     setCustomStartDate(null);
-  //     setCustomEndDate(null);
-  //     onChange(range[0], range[1]);
-  //   }
-  // }, [selectedRange, onChange]);
+  useEffect(() => {
+    setSelectedRange(initialDateRange);
+  }, [initialDateRange])
+
+  const handleDateCategoryChange = (dateRangeId: string) => {
+    const [start, end] = getDateRange(dateRangeId);
+    setCustomStartDate(null);
+    setCustomEndDate(null);
+    setSelectedRange(dateRangeId);
+    onChange(start, end);
+  };
 
   const handleCustomDateChange = (range: DateRange) => {
     if (!range?.from && !range?.to) {
@@ -55,13 +46,12 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({ initialDateRange,
     const end: Date = range.to;
     setCustomStartDate(start);
     setCustomEndDate(end);
-    setDateRange([start, end]);
     onChange(start, end);
   };
 
   return (
     <div className="flex mt-4 items-center">
-      <Select onValueChange={(value) => setSelectedRange(value)} value={selectedRange}>
+      <Select onValueChange={(dateRangeId) => handleDateCategoryChange(dateRangeId)} value={selectedRange}>
         <SelectTrigger className="w-[240px] mr-4 h-12 px-8 py-0 rounded-2xl border-black border-2 font-bold">
           <SelectValue placeholder="Select Date Range" />
         </SelectTrigger>
@@ -85,11 +75,12 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({ initialDateRange,
           showCompare={false}
         />
       )}
-
-      <div className="flex flex-col">
-        <p className="text-gray-300">Start {dateRange[0].toLocaleDateString()}</p>
-        <p className="text-gray-300">End {dateRange[1].toLocaleDateString()}</p>
-      </div>
+      {selectedRange !== 'CUSTOM' && (
+        <div className="flex flex-col">
+          <p className="text-gray-300">Start {dateRange[0].toLocaleDateString()}</p>
+          <p className="text-gray-300">End {dateRange[1].toLocaleDateString()}</p>
+        </div>
+      )}
     </div>
   );
 };
