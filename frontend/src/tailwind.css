@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.right-border {
+    @apply border-r-20 border-transparent;
+    background: url('./assets/waves.svg') right top repeat-y;
+    background-size: contain;
+}
