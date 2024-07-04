@@ -8,8 +8,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 import { CircularProgress, Box, Typography } from '@mui/material';
@@ -96,7 +94,7 @@ const DashboardsCharts: React.FC<Props> = ({ charts, dateRange, onClickChart }) 
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 mt-8">
+    <div className="grid grid-cols-2 gap-10 mt-8">
       {charts.map((chart) => (
         <Box
           key={chart.id}
@@ -104,33 +102,29 @@ const DashboardsCharts: React.FC<Props> = ({ charts, dateRange, onClickChart }) 
           onClick={() => handleChartClick(chart)}
           style={{ cursor: 'pointer', transition: 'transform 0.2s', ':hover': { transform: 'scale(1.05)' } }}
         >
-          <Typography variant="h6" gutterBottom>
+          <div className="ml-8 font-bold text-xl -mb-1">
             {chart.name}
-          </Typography>
-          <ResponsiveContainer width="100%" height={400}>
+          </div>
+          <ResponsiveContainer width="100%" height={400} className="border-2 border-black rounded-2xl p-4 inline-block" >
             {chart.chart_type === 'line' && (
               <LineChart
                 data={chartData[chart.id]}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 30, right: 30, left: 20, bottom: 60 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={chart.x_axis_field} />
-                <YAxis />
+                <XAxis dataKey={chart.x_axis_field} label={{ value: chart.x_axis_field, position: 'insideBottom', offset: -10 }} />
+                <YAxis label={{ value: chart.y_axis_field, angle: -90, position: 'insideLeft', offset: 0 }} />
                 <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey={chart.y_axis_field} stroke="#8884d8" activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey={chart.y_axis_field} stroke="#8884d8" strokeWidth={4} activeDot={{ r: 8 }} />
               </LineChart>
             )}
             {chart.chart_type === 'bar' && (
               <BarChart
                 data={chartData[chart.id]}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                margin={{ top: 30, right: 30, left: 20, bottom: 60 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={chart.x_axis_field} />
-                <YAxis />
+                <XAxis dataKey={chart.x_axis_field} label={{ value: chart.x_axis_field, position: 'insideBottom', offset: -10 }} />
+                <YAxis label={{ value: chart.y_axis_field, angle: -90, position: 'insideLeft', offset: 0 }} />
                 <Tooltip />
-                <Legend />
                 <Bar dataKey={chart.y_axis_field} fill="#8884d8" />
               </BarChart>
             )}
