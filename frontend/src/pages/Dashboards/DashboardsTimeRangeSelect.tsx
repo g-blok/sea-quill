@@ -32,8 +32,8 @@ const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({ initialDateRange,
 
   const handleDateCategoryChange = (dateRangeId: string) => {
     const [start, end] = getDateRange(dateRangeId);
-    setCustomStartDate(null);
-    setCustomEndDate(null);
+    setCustomStartDate(start);
+    setCustomEndDate(end);
     setSelectedRange(dateRangeId);
     onChange(start, end);
   };

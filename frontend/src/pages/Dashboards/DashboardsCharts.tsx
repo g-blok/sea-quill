@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { CircularProgress, Box, Typography } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material';
 import ChartModal from './ChartModal';
 import debounce from 'lodash.debounce';
 
@@ -30,6 +30,14 @@ interface ChartData {
   [key: string]: any;
 }
 
+interface DataCollection {
+  [chartId: string]: {
+    data: ChartData[];
+    startDate: string;
+    endDate: string;
+  };
+}
+
 interface Props {
   charts: Chart[];
   dateRange: { start: string, end: string };
@@ -37,32 +45,46 @@ interface Props {
 }
 
 const DashboardsCharts: React.FC<Props> = ({ charts, dateRange, onClickChart }) => {
-  const [chartData, setChartData] = useState<{ [key: number]: ChartData[] }>({});
+  const [dataCollection, setDataCollection] = useState<DataCollection>({});
   const [loading, setLoading] = useState(true);
   const [selectedChart, setSelectedChart] = useState<Chart | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   const fetchData = useCallback(
     debounce(async () => {
-      if (!dateRange?.start?.length && !dateRange?.end?.length) {
-        setLoading(false)
-        return
+      if (!dateRange?.start?.length || !dateRange?.end?.length) {
+        setLoading(false);
+        return;
       }
       setLoading(true);
-      const data: { [key: number]: ChartData[] } = {};
+      const data: DataCollection = {};
 
       for (const chart of charts) {
-        data[chart.id] = [];
-        const result = await getChartData(chart.id, dateRange);
-        console.log('chart: ', chart);
-        console.log('result: ', result);
-
-        if (result?.length) {
-          data[chart.id] = result;
+        let chartDataRows: ChartData[] = []
+        if (hasCachedData(chart)) {
+          chartDataRows = filterData(dataCollection[chart.id].data, dateRange.start, dateRange.end, chart)
+        } else {
+          chartDataRows = await getChartData(chart.id, dateRange);
+          dataCollection[chart.id] = {
+            data: chartDataRows,
+            startDate: dateRange.start,
+            endDate: dateRange.end,
+          }
         }
+        let sortedChartDataRows: ChartData[] = [];
+        if (chartDataRows?.length) {
+          sortedChartDataRows = chartDataRows
+          .sort((a: ChartData, b: ChartData) =>
+            a[chart.x_axis_field] < b[chart.x_axis_field] ? -1 : a[chart.x_axis_field] > b[chart.x_axis_field] ? 1 : 0
+          );
+        }
+        data[chart.id] = {
+          data: sortedChartDataRows,
+          startDate: dateRange.start,
+          endDate: dateRange.end,
+        };
       }
-
-      setChartData(data);
+      setDataCollection(data);
       setLoading(false);
     }, 300),
     [charts, dateRange]
@@ -71,9 +93,31 @@ const DashboardsCharts: React.FC<Props> = ({ charts, dateRange, onClickChart }) 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-  useEffect(() => {
-    console.log('dateRange in charts: ', dateRange)
-  }, [])
+
+  const hasCachedData = (chart: Chart) => {
+    const requiresNewFetch = /group by/i.test(chart.sql_query);
+    const cachedStartBeforeFilterStart = new Date(dataCollection[chart.id]?.startDate) <= new Date(dateRange.start);
+    const cachedEndAfterFilterEnd = new Date(dataCollection[chart.id]?.endDate) <= new Date(dateRange.end);
+    if (!requiresNewFetch && cachedStartBeforeFilterStart && cachedEndAfterFilterEnd) {
+      return true;
+    }
+    return false;
+  }
+
+  const filterData = (data: ChartData[], startDate: string, endDate: string, chart: Chart) => {
+    if (!chart.date_field_field) {
+      return data;
+    }
+    // Filter data on client side based on the date range
+    return data.filter((item) => {
+      const date = new Date(item[chart.date_field_field]);
+      return date >= new Date(startDate) && date <= new Date(endDate);
+    });
+  };
+
+  const getFilteredData = (chart: Chart) => {
+    return dataCollection[chart.id]?.data;
+  };
 
   const handleChartClick = (chart: Chart) => {
     setSelectedChart(chart);
@@ -106,9 +150,9 @@ const DashboardsCharts: React.FC<Props> = ({ charts, dateRange, onClickChart }) 
             {chart.name}
           </div>
           <ResponsiveContainer width="100%" height={400} className="border-2 border-black rounded-2xl p-4 inline-block" >
-            {chart.chart_type === 'line' && (
+            {chart.chart_type === 'line' && !!getFilteredData(chart)?.length && (
               <LineChart
-                data={chartData[chart.id]}
+                data={getFilteredData(chart)}
                 margin={{ top: 30, right: 30, left: 20, bottom: 60 }}
               >
                 <XAxis dataKey={chart.x_axis_field} label={{ value: chart.x_axis_field, position: 'insideBottom', offset: -10 }} />
@@ -117,9 +161,9 @@ const DashboardsCharts: React.FC<Props> = ({ charts, dateRange, onClickChart }) 
                 <Line type="monotone" dataKey={chart.y_axis_field} stroke="#8884d8" strokeWidth={4} activeDot={{ r: 8 }} />
               </LineChart>
             )}
-            {chart.chart_type === 'bar' && (
+            {chart.chart_type === 'bar' && !!getFilteredData(chart)?.length && (
               <BarChart
-                data={chartData[chart.id]}
+                data={getFilteredData(chart)}
                 margin={{ top: 30, right: 30, left: 20, bottom: 60 }}
               >
                 <XAxis dataKey={chart.x_axis_field} label={{ value: chart.x_axis_field, position: 'insideBottom', offset: -10 }} />
@@ -127,6 +171,11 @@ const DashboardsCharts: React.FC<Props> = ({ charts, dateRange, onClickChart }) 
                 <Tooltip />
                 <Bar dataKey={chart.y_axis_field} fill="#8884d8" />
               </BarChart>
+            )}
+            {!getFilteredData(chart)?.length && (
+              <div className="flex m-auto justify-center items-center h-full text-primary text-xl">
+                no data for this period
+              </div>
             )}
           </ResponsiveContainer>
         </Box>
