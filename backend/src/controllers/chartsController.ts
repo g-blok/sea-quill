@@ -54,7 +54,6 @@ const getChartData = async (req: Request, res: Response) => {
       const timeCondition = `WHERE ${chart.date_field_field} BETWEEN '${startDate}' AND '${endDate}'`;
       dataQuery = addConditionToSQL(dataQuery, timeCondition);
     } 
-    console.log('dataQuery: ', dataQuery)
 
     const { data: results, error: queryError } = await supabase.rpc('execute_sql', {
       query: dataQuery,
