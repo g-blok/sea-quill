@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { getCharts } from '../../services/apiService';
-import { Typography } from '@mui/material';
+import DataConnections from './DataConnections';
 
 const DataPage: React.FC = () => {
+
   return (
-    <div>
-      this is the data page
+    <div className="p-10 pr-20">
+      <DataConnections />
     </div>
   );
 };

@@ -14,7 +14,7 @@ const PirateButton: React.FC = () => {
     setShipId(shipId + 1);
     setTimeout(() => {
         setShips((ships) => ships.filter((ship) => ship.id !== shipId));
-    }, 30000);
+    }, 20000);
   };
 
   return (
