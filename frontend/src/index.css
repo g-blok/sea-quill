@@ -7,10 +7,10 @@
       transform: translateX(-100px);
     }
     100% {
-      transform: translateX(calc(100% + 100px));
+      transform: translateX(calc(100vw + 100px));
     }
 }
   
 .animate-sail {
-    animation: sail 30s linear forwards;
+    animation: sail 10s linear forwards;
 }
