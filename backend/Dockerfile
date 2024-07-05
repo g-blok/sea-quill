@@ -1,10 +1,10 @@
-# Use the official image as a parent image
+# Use an official Node.js runtime as a parent image
 FROM node:18
 
 # Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy the package.json and package-lock.json
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
 # Install dependencies
@@ -16,5 +16,5 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Command to run the app
+# Start the app
 CMD ["npm", "run", "dev"]
